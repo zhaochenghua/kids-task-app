@@ -743,13 +743,13 @@ function recordReadingCompletion(book) {
     currentChild.readingHistory = [];
   }
   
-  // 检查是否已经存在相同的记录（同一本书同一天）
-  const exists = currentChild.readingHistory.some(
+  // 检查是否已存在相同书名的完成记录（防止重复添加）
+  const alreadyExists = currentChild.readingHistory.some(
     h => h.bookName === book.name && h.completedDate === t
   );
   
-  // 如果已存在，不再添加
-  if (exists) {
+  if (alreadyExists) {
+    console.log(`《${book.name}》已在今日阅读历史中，跳过重复添加`);
     return;
   }
   

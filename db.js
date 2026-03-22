@@ -318,7 +318,7 @@ async function saveAllData(data) {
           );
         }
 
-        // 保存阅读历史（使用 INSERT OR IGNORE 避免重复）
+        // 保存阅读历史（使用 INSERT OR IGNORE 防止重复）
         if (child.readingHistory) {
           child.readingHistory.forEach((book) => {
             db.run(

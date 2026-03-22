@@ -115,7 +115,8 @@ function createTables() {
         author TEXT,
         total_pages INTEGER DEFAULT 0,
         completed_date TEXT NOT NULL,
-        FOREIGN KEY (child_id) REFERENCES children(id) ON DELETE CASCADE
+        FOREIGN KEY (child_id) REFERENCES children(id) ON DELETE CASCADE,
+        UNIQUE(child_id, book_name, completed_date)
       )`);
 
       // 头像表
@@ -317,11 +318,11 @@ async function saveAllData(data) {
           );
         }
 
-        // 保存阅读历史
+        // 保存阅读历史（使用 INSERT OR IGNORE 避免重复）
         if (child.readingHistory) {
           child.readingHistory.forEach((book) => {
             db.run(
-              `INSERT OR REPLACE INTO reading_history (child_id, book_name, author, total_pages, completed_date)
+              `INSERT OR IGNORE INTO reading_history (child_id, book_name, author, total_pages, completed_date)
                VALUES (?, ?, ?, ?, ?)`,
               [child.id, book.bookName, book.author, book.totalPages, book.completedDate]
             );

@@ -695,8 +695,13 @@ function renderReading() {
 }
 
 // 增加阅读页数
+let isCompletingBook = false; // 防止重复完成同一本书
+
 async function addReadingPages(pages = 1) {
   if (!currentChild || !currentChild.readingBook) return;
+  
+  // 如果正在完成书籍处理中，跳过
+  if (isCompletingBook) return;
   
   const book = currentChild.readingBook;
   const oldPage = book.currentPage || 0;
@@ -718,6 +723,8 @@ async function addReadingPages(pages = 1) {
   
   // 检查是否读完
   if (book.currentPage >= book.totalPages && oldPage < book.totalPages) {
+    isCompletingBook = true; // 设置标志防止重复处理
+    
     // 记录到历史
     recordReadingCompletion(book);
 
@@ -730,6 +737,7 @@ async function addReadingPages(pages = 1) {
       showConfirm(`🎉 恭喜！《${book.name}》已经读完啦！\n\n请在设置中添加新书`, () => {
         // 关闭确认框
       });
+      isCompletingBook = false; // 重置标志
     }, 800);
   }
 }
@@ -741,6 +749,16 @@ function recordReadingCompletion(book) {
   // 初始化阅读历史数组
   if (!currentChild.readingHistory) {
     currentChild.readingHistory = [];
+  }
+  
+  // 检查是否已经记录过这本书（防止重复添加）
+  const alreadyRecorded = currentChild.readingHistory.some(
+    record => record.bookName === book.name && record.completedDate === t
+  );
+  
+  if (alreadyRecorded) {
+    console.log(`《${book.name}》今天已经记录过了，跳过重复添加`);
+    return;
   }
   
   // 添加完成记录

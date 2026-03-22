@@ -439,6 +439,7 @@ const els = {
   // 孩子顺序调整
   moveChildUp:                $('moveChildUp'),
   moveChildDown:              $('moveChildDown'),
+  childOrderNumber:           $('childOrderNumber'),
 
   // 历史
   openHistory:      $('openHistory'),
@@ -1168,10 +1169,21 @@ function updateOrderButtonsState() {
   if (!selectedChildId) {
     els.moveChildUp.disabled = true;
     els.moveChildDown.disabled = true;
+    if (els.childOrderNumber) {
+      els.childOrderNumber.textContent = '-';
+    }
     return;
   }
   
   const index = appData.children.findIndex(c => c.id === selectedChildId);
+  const order = index + 1; // 从1开始计数
+  
+  // 更新序号显示
+  if (els.childOrderNumber) {
+    els.childOrderNumber.textContent = `${order} / ${appData.children.length}`;
+  }
+  
+  // 更新按钮状态
   els.moveChildUp.disabled = index <= 0;
   els.moveChildDown.disabled = index >= appData.children.length - 1 || index === -1;
 }

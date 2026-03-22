@@ -743,6 +743,16 @@ function recordReadingCompletion(book) {
     currentChild.readingHistory = [];
   }
   
+  // 检查是否已经存在相同的记录（同一本书同一天）
+  const exists = currentChild.readingHistory.some(
+    h => h.bookName === book.name && h.completedDate === t
+  );
+  
+  // 如果已存在，不再添加
+  if (exists) {
+    return;
+  }
+  
   // 添加完成记录
   currentChild.readingHistory.unshift({
     bookName: book.name,

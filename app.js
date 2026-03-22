@@ -1346,33 +1346,53 @@ function saveSettings() {
   // 初始化积分系统（兼容旧数据）
   initChildScoreSystem(currentChild);
   
-  // 计算需要扣回的分数（因为已打卡的任务被重置了）
+  // 保留今日已打卡状态，只更新任务列表
+  // 创建新的打卡记录，保留原有已打卡状态
+  const newChecks = {};
+  currentChild.tasks.forEach(task => {
+    // 如果任务ID在之前的已打卡列表中，保持已打卡状态
+    newChecks[task.id] = completedTaskIds.includes(task.id);
+  });
+  currentChild.dailyChecks[t] = newChecks;
+  
+  // 检查是否有任务被删除但已打卡，需要扣回积分
   let scoreToDeduct = 0;
   completedTaskIds.forEach(taskId => {
-    const oldTask = currentChild.tasks.find(tk => tk.id === taskId);
-    if (oldTask) {
-      scoreToDeduct += oldTask.points;
+    const taskStillExists = validTasks.find(t => t.id === taskId);
+    if (!taskStillExists) {
+      // 任务被删除了，需要扣回该任务的积分
+      const deletedTask = currentChild.tasks.find(t => t.id === taskId);
+      if (deletedTask) {
+        scoreToDeduct += deletedTask.points;
+      }
     }
   });
   
-  // 检查之前是否全部完成（需要扣回奖励分）
-  const totalTasks = currentChild.tasks.length;
-  const completedCount = completedTaskIds.length;
-  let bonusToDeduct = 0;
-  if (completedCount === totalTasks && totalTasks > 0) {
-    bonusToDeduct = parseInt(currentChild.bonusPoints) || 0;
+  // 如果之前全部完成，且现在有任务被删除或新增，可能需要调整
+  const oldTotalTasks = Object.keys(oldChecks).length;
+  const oldCompletedCount = completedTaskIds.length;
+  const newTotalTasks = validTasks.length;
+  const newCompletedCount = Object.values(newChecks).filter(v => v).length;
+  
+  // 扣回被删除任务的积分
+  if (scoreToDeduct > 0) {
+    currentChild.lifetimeScore = Math.max(0, currentChild.lifetimeScore - scoreToDeduct);
+    currentChild.totalScore = currentChild.lifetimeScore;
   }
   
-  // 扣回积分
-  currentChild.lifetimeScore = Math.max(0, currentChild.lifetimeScore - scoreToDeduct - bonusToDeduct);
-  currentChild.totalScore = currentChild.lifetimeScore; // 保持兼容
+  // 如果之前全部完成，现在不是全部完成，扣回奖励分
+  if (oldCompletedCount === oldTotalTasks && oldTotalTasks > 0) {
+    if (newCompletedCount < newTotalTasks) {
+      const bonusToDeduct = parseInt(currentChild.bonusPoints) || 0;
+      currentChild.lifetimeScore = Math.max(0, currentChild.lifetimeScore - bonusToDeduct);
+      currentChild.totalScore = currentChild.lifetimeScore;
+    }
+  }
   
-  // 重置今日打卡
-  currentChild.dailyChecks[t] = {};
-  currentChild.tasks.forEach(task => {
-    currentChild.dailyChecks[t][task.id] = false;
-  });
-  allDoneShownToday = false;
+  // 如果现在是全部完成，显示庆祝
+  if (newCompletedCount === newTotalTasks && newTotalTasks > 0 && !allDoneShownToday) {
+    showAllDone(currentChild.bonusPoints);
+  }
 
   // 同步到服务器
   syncToServer();

@@ -436,11 +436,6 @@ const els = {
   saveReadingBookBtn:         $('saveReadingBookBtn'),
   clearReadingBookBtn:        $('clearReadingBookBtn'),
 
-  // 孩子顺序调整
-  moveChildUp:                $('moveChildUp'),
-  moveChildDown:              $('moveChildDown'),
-  childOrderNumber:           $('childOrderNumber'),
-
   // 历史
   openHistory:      $('openHistory'),
   historyModal:     $('historyModal'),
@@ -741,16 +736,6 @@ function recordReadingCompletion(book) {
   // 初始化阅读历史数组
   if (!currentChild.readingHistory) {
     currentChild.readingHistory = [];
-  }
-  
-  // 检查是否已存在相同书名的完成记录（防止重复添加）
-  const alreadyExists = currentChild.readingHistory.some(
-    h => h.bookName === book.name && h.completedDate === t
-  );
-  
-  if (alreadyExists) {
-    console.log(`《${book.name}》已在今日阅读历史中，跳过重复添加`);
-    return;
   }
   
   // 添加完成记录
@@ -1143,8 +1128,6 @@ function openSettings() {
   renderChildSelect();
   // 加载当前孩子的数据
   loadChildDataToSettings(currentChild);
-  // 更新顺序按钮状态
-  updateOrderButtonsState();
   els.settingsModal.style.display = 'flex';
 }
 
@@ -1169,69 +1152,6 @@ function loadChildDataToSettings(child) {
   renderAvatarPreview(child);
   // 加载阅读书目
   loadReadingBookToSettings();
-}
-
-// 更新顺序按钮状态
-function updateOrderButtonsState() {
-  if (!els.selectChild || !els.moveChildUp || !els.moveChildDown) return;
-  
-  const selectedChildId = els.selectChild.value;
-  if (!selectedChildId) {
-    els.moveChildUp.disabled = true;
-    els.moveChildDown.disabled = true;
-    if (els.childOrderNumber) {
-      els.childOrderNumber.textContent = '-';
-    }
-    return;
-  }
-  
-  const index = appData.children.findIndex(c => c.id === selectedChildId);
-  const order = index + 1; // 从1开始计数
-  
-  // 更新序号显示
-  if (els.childOrderNumber) {
-    els.childOrderNumber.textContent = `${order} / ${appData.children.length}`;
-  }
-  
-  // 更新按钮状态
-  els.moveChildUp.disabled = index <= 0;
-  els.moveChildDown.disabled = index >= appData.children.length - 1 || index === -1;
-}
-
-// 移动孩子顺序
-function moveChildOrder(direction) {
-  if (!els.selectChild) return;
-  
-  const selectedChildId = els.selectChild.value;
-  if (!selectedChildId) return;
-  
-  const index = appData.children.findIndex(c => c.id === selectedChildId);
-  if (index === -1) return;
-  
-  const newIndex = index + direction;
-  if (newIndex < 0 || newIndex >= appData.children.length) return;
-  
-  // 交换位置
-  const temp = appData.children[index];
-  appData.children[index] = appData.children[newIndex];
-  appData.children[newIndex] = temp;
-  
-  // 同步到服务器
-  syncToServer();
-  
-  // 重新渲染下拉菜单
-  renderChildSelect();
-  
-  // 保持选中状态
-  els.selectChild.value = selectedChildId;
-  
-  // 更新按钮状态
-  updateOrderButtonsState();
-  
-  // 如果孩子切换面板打开，也刷新它
-  if (els.childSwitchModal.style.display === 'flex') {
-    renderChildList();
-  }
 }
 
 // 加载阅读书目到设置面板
@@ -1356,53 +1276,33 @@ function saveSettings() {
   // 初始化积分系统（兼容旧数据）
   initChildScoreSystem(currentChild);
   
-  // 保留今日已打卡状态，只更新任务列表
-  // 创建新的打卡记录，保留原有已打卡状态
-  const newChecks = {};
-  currentChild.tasks.forEach(task => {
-    // 如果任务ID在之前的已打卡列表中，保持已打卡状态
-    newChecks[task.id] = completedTaskIds.includes(task.id);
-  });
-  currentChild.dailyChecks[t] = newChecks;
-  
-  // 检查是否有任务被删除但已打卡，需要扣回积分
+  // 计算需要扣回的分数（因为已打卡的任务被重置了）
   let scoreToDeduct = 0;
   completedTaskIds.forEach(taskId => {
-    const taskStillExists = validTasks.find(t => t.id === taskId);
-    if (!taskStillExists) {
-      // 任务被删除了，需要扣回该任务的积分
-      const deletedTask = currentChild.tasks.find(t => t.id === taskId);
-      if (deletedTask) {
-        scoreToDeduct += deletedTask.points;
-      }
+    const oldTask = currentChild.tasks.find(tk => tk.id === taskId);
+    if (oldTask) {
+      scoreToDeduct += oldTask.points;
     }
   });
   
-  // 如果之前全部完成，且现在有任务被删除或新增，可能需要调整
-  const oldTotalTasks = Object.keys(oldChecks).length;
-  const oldCompletedCount = completedTaskIds.length;
-  const newTotalTasks = validTasks.length;
-  const newCompletedCount = Object.values(newChecks).filter(v => v).length;
-  
-  // 扣回被删除任务的积分
-  if (scoreToDeduct > 0) {
-    currentChild.lifetimeScore = Math.max(0, currentChild.lifetimeScore - scoreToDeduct);
-    currentChild.totalScore = currentChild.lifetimeScore;
+  // 检查之前是否全部完成（需要扣回奖励分）
+  const totalTasks = currentChild.tasks.length;
+  const completedCount = completedTaskIds.length;
+  let bonusToDeduct = 0;
+  if (completedCount === totalTasks && totalTasks > 0) {
+    bonusToDeduct = parseInt(currentChild.bonusPoints) || 0;
   }
   
-  // 如果之前全部完成，现在不是全部完成，扣回奖励分
-  if (oldCompletedCount === oldTotalTasks && oldTotalTasks > 0) {
-    if (newCompletedCount < newTotalTasks) {
-      const bonusToDeduct = parseInt(currentChild.bonusPoints) || 0;
-      currentChild.lifetimeScore = Math.max(0, currentChild.lifetimeScore - bonusToDeduct);
-      currentChild.totalScore = currentChild.lifetimeScore;
-    }
-  }
+  // 扣回积分
+  currentChild.lifetimeScore = Math.max(0, currentChild.lifetimeScore - scoreToDeduct - bonusToDeduct);
+  currentChild.totalScore = currentChild.lifetimeScore; // 保持兼容
   
-  // 如果现在是全部完成，显示庆祝
-  if (newCompletedCount === newTotalTasks && newTotalTasks > 0 && !allDoneShownToday) {
-    showAllDone(currentChild.bonusPoints);
-  }
+  // 重置今日打卡
+  currentChild.dailyChecks[t] = {};
+  currentChild.tasks.forEach(task => {
+    currentChild.dailyChecks[t][task.id] = false;
+  });
+  allDoneShownToday = false;
 
   // 同步到服务器
   syncToServer();
@@ -2279,24 +2179,8 @@ function bindEvents() {
           syncToServer();
           // 加载孩子的数据到设置面板（重新加载编辑中的任务）
           loadChildDataToSettings(selectedChild);
-          // 更新顺序按钮状态
-          updateOrderButtonsState();
         }
       }
-    });
-  }
-
-  // 孩子顺序调整按钮
-  if (els.moveChildUp) {
-    els.moveChildUp.addEventListener('click', () => {
-      playSound('click');
-      moveChildOrder(-1);
-    });
-  }
-  if (els.moveChildDown) {
-    els.moveChildDown.addEventListener('click', () => {
-      playSound('click');
-      moveChildOrder(1);
     });
   }
 

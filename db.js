@@ -25,29 +25,6 @@ function initDatabase() {
   });
 }
 
-// 检查并添加 sort_order 列
-function migrateAddSortOrder() {
-  return new Promise((resolve, reject) => {
-    db.all("PRAGMA table_info(children)", [], (err, columns) => {
-      if (err) return reject(err);
-      
-      const hasSortOrder = columns.some(col => col.name === 'sort_order');
-      if (!hasSortOrder) {
-        console.log('🔄 迁移: 添加 sort_order 列...');
-        db.run('ALTER TABLE children ADD COLUMN sort_order INTEGER DEFAULT 0', (err) => {
-          if (err) reject(err);
-          else {
-            console.log('✅ sort_order 列已添加');
-            resolve();
-          }
-        });
-      } else {
-        resolve();
-      }
-    });
-  });
-}
-
 // 创建表结构
 function createTables() {
   return new Promise((resolve, reject) => {
@@ -62,17 +39,8 @@ function createTables() {
         streak INTEGER DEFAULT 0,
         last_complete_date TEXT,
         current_child_id TEXT,
-        sort_order INTEGER DEFAULT 0,
         created_at INTEGER DEFAULT (strftime('%s', 'now') * 1000)
-      )`, async (err) => {
-        if (err) return reject(err);
-        // 迁移旧表结构
-        try {
-          await migrateAddSortOrder();
-        } catch (e) {
-          return reject(e);
-        }
-      });
+      )`);
 
       // 任务表
       db.run(`CREATE TABLE IF NOT EXISTS tasks (
@@ -115,8 +83,7 @@ function createTables() {
         author TEXT,
         total_pages INTEGER DEFAULT 0,
         completed_date TEXT NOT NULL,
-        FOREIGN KEY (child_id) REFERENCES children(id) ON DELETE CASCADE,
-        UNIQUE(child_id, book_name, completed_date)
+        FOREIGN KEY (child_id) REFERENCES children(id) ON DELETE CASCADE
       )`);
 
       // 头像表
@@ -162,8 +129,8 @@ async function getAllData() {
       lastModified: Date.now()
     };
 
-    // 获取所有孩子（按 sort_order 排序）
-    db.all('SELECT * FROM children ORDER BY sort_order ASC, created_at ASC', [], (err, children) => {
+    // 获取所有孩子
+    db.all('SELECT * FROM children', [], (err, children) => {
       if (err) return reject(err);
       
       if (children.length === 0) {
@@ -274,14 +241,14 @@ async function saveAllData(data) {
 
       const { children, currentChildId } = data;
 
-      children.forEach((child, index) => {
-        // 保存孩子基本信息（包含顺序）
+      children.forEach((child) => {
+        // 保存孩子基本信息
         db.run(
           `INSERT OR REPLACE INTO children 
-           (id, name, bonus_points, total_score, lifetime_score, streak, last_complete_date, current_child_id, sort_order)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           (id, name, bonus_points, total_score, lifetime_score, streak, last_complete_date, current_child_id)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
           [child.id, child.name, child.bonusPoints || 0, child.totalScore || 0, 
-           child.lifetimeScore || 0, child.streak || 0, child.lastCompleteDate, currentChildId, index]
+           child.lifetimeScore || 0, child.streak || 0, child.lastCompleteDate, currentChildId]
         );
 
         // 保存任务
@@ -318,11 +285,11 @@ async function saveAllData(data) {
           );
         }
 
-        // 保存阅读历史（使用 INSERT OR IGNORE 防止重复）
+        // 保存阅读历史
         if (child.readingHistory) {
           child.readingHistory.forEach((book) => {
             db.run(
-              `INSERT OR IGNORE INTO reading_history (child_id, book_name, author, total_pages, completed_date)
+              `INSERT OR REPLACE INTO reading_history (child_id, book_name, author, total_pages, completed_date)
                VALUES (?, ?, ?, ?, ?)`,
               [child.id, book.bookName, book.author, book.totalPages, book.completedDate]
             );

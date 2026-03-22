@@ -1,0 +1,315 @@
+{
+  "children": [
+    {
+      "id": "4306eldp",
+      "name": "赵可馨",
+      "bonusPoints": 5,
+      "tasks": [
+        {
+          "id": "o11up1zi",
+          "name": "7点15(假期8点)前起床+吃药",
+          "emoji": "🛏️",
+          "points": 2,
+          "color": "#4ECDC4"
+        },
+        {
+          "id": "1v0bu82b",
+          "name": "阅读30分钟",
+          "emoji": "📚",
+          "points": 3,
+          "color": "#A29BFE"
+        },
+        {
+          "id": "f39su2xn",
+          "name": "跳绳500个+100个摸高",
+          "emoji": "🏃",
+          "points": 3,
+          "color": "#FF6B6B"
+        },
+        {
+          "id": "8tddqkpa",
+          "name": "滴眼药水+整理桌面",
+          "emoji": "💧",
+          "points": 2,
+          "color": "#FDCB6E"
+        },
+        {
+          "id": "0hlzemuw",
+          "name": "计算小达人做几题",
+          "emoji": "📖",
+          "points": 2,
+          "color": "#55EFC4"
+        },
+        {
+          "id": "l1pde6er",
+          "name": "英语打卡+背几个单词",
+          "emoji": "🖥️",
+          "points": 2,
+          "color": "#FD79A8"
+        },
+        {
+          "id": "89qulnv7",
+          "name": "数学学霸做几题",
+          "emoji": "✏️",
+          "points": 2,
+          "color": "#74B9FF"
+        },
+        {
+          "id": "m0kec10n",
+          "name": "九点半上床",
+          "emoji": "😴",
+          "points": 2,
+          "color": "#00CEC9"
+        }
+      ],
+      "dailyChecks": {
+        "2026-03-19": {
+          "hhzi0qfs": false,
+          "ckz8kq81": false,
+          "dqoyym17": false,
+          "np7zw3os": false,
+          "k0eqaqp4": false,
+          "zudyrk4t": false,
+          "o11up1zi": true,
+          "f39su2xn": true,
+          "8tddqkpa": true,
+          "0hlzemuw": true,
+          "l1pde6er": true,
+          "89qulnv7": true,
+          "m0kec10n": true
+        },
+        "2026-03-20": {
+          "o11up1zi": true,
+          "1v0bu82b": true,
+          "f39su2xn": true,
+          "8tddqkpa": true,
+          "0hlzemuw": true,
+          "l1pde6er": true,
+          "89qulnv7": false,
+          "m0kec10n": true
+        },
+        "2026-03-21": {
+          "o11up1zi": true,
+          "1v0bu82b": true,
+          "f39su2xn": false,
+          "8tddqkpa": true,
+          "0hlzemuw": false,
+          "l1pde6er": true,
+          "89qulnv7": false,
+          "m0kec10n": false
+        },
+        "2026-03-22": {
+          "o11up1zi": false,
+          "1v0bu82b": true,
+          "f39su2xn": true,
+          "8tddqkpa": true,
+          "0hlzemuw": false,
+          "l1pde6er": true,
+          "89qulnv7": true,
+          "m0kec10n": true
+        }
+      },
+      "scoreHistory": [],
+      "totalScore": 176,
+      "lifetimeScore": 176,
+      "streak": 0,
+      "lastCompleteDate": null,
+      "readingBook": {
+        "name": "呼兰河传",
+        "author": "小红",
+        "totalPages": 207,
+        "currentPage": 71
+      },
+      "readingHistory": [
+        {
+          "bookName": "俗世奇人",
+          "author": "冯骥才",
+          "totalPages": 180,
+          "completedDate": "2026-03-20"
+        },
+        {
+          "bookName": "水浒传",
+          "author": "施耐庵",
+          "totalPages": 310,
+          "completedDate": "2026-02-28"
+        },
+        {
+          "bookName": "西游记",
+          "author": "吴承恩",
+          "totalPages": 310,
+          "completedDate": "2026-02-11"
+        },
+        {
+          "bookName": "科学王国里的故事",
+          "author": "王会",
+          "totalPages": 184,
+          "completedDate": "2026-01-21"
+        },
+        {
+          "bookName": "牧羊少年奇幻之旅",
+          "author": "保罗·柯艾略",
+          "totalPages": 203,
+          "completedDate": "2026-01-27"
+        },
+        {
+          "bookName": "鲁滨逊漂流记",
+          "author": "丹尼尔·笛福",
+          "totalPages": 217,
+          "completedDate": "2026-01-06"
+        }
+      ]
+    },
+    {
+      "id": "mki6kg2t",
+      "name": "赵可晴",
+      "bonusPoints": 5,
+      "tasks": [
+        {
+          "id": "rapdx21z",
+          "name": "7点15前(假期8:00)起床",
+          "emoji": "🛏️",
+          "points": 2,
+          "color": "#4ECDC4"
+        },
+        {
+          "id": "qdlxivn7",
+          "name": "古诗一首",
+          "emoji": "📖",
+          "points": 2,
+          "color": "#A29BFE"
+        },
+        {
+          "id": "z26xvtc1",
+          "name": "阅读30分钟",
+          "emoji": "📖",
+          "points": 3,
+          "color": "#FF6B6B"
+        },
+        {
+          "id": "jtrkw5r4",
+          "name": "语文阳光一页",
+          "emoji": "📖",
+          "points": 2,
+          "color": "#FDCB6E"
+        },
+        {
+          "id": "c0wa7alq",
+          "name": "计算一页",
+          "emoji": "📖",
+          "points": 2,
+          "color": "#55EFC4"
+        },
+        {
+          "id": "wuzin5ns",
+          "name": "英语打卡",
+          "emoji": "🖥️",
+          "points": 2,
+          "color": "#FD79A8"
+        },
+        {
+          "id": "2hf0bajd",
+          "name": "跳绳300个+摸高100个",
+          "emoji": "💪",
+          "points": 2,
+          "color": "#74B9FF"
+        },
+        {
+          "id": "y3t4pq22",
+          "name": "九点半上床+整理桌面",
+          "emoji": "😴",
+          "points": 3,
+          "color": "#00CEC9"
+        }
+      ],
+      "dailyChecks": {
+        "2026-03-19": {
+          "g12gr6tl": false,
+          "9yv2vn62": false,
+          "208pn5bz": false,
+          "bz6vb1t6": false,
+          "svpiaedn": false,
+          "9kcawmmp": false,
+          "uom5eifq": false,
+          "kupav4z2": false,
+          "foq25cm5": false,
+          "rapdx21z": true,
+          "qdlxivn7": true,
+          "jtrkw5r4": true,
+          "c0wa7alq": true,
+          "wuzin5ns": true,
+          "2hf0bajd": true,
+          "y3t4pq22": true
+        },
+        "2026-03-20": {
+          "rapdx21z": true,
+          "qdlxivn7": false,
+          "z26xvtc1": false,
+          "jtrkw5r4": false,
+          "c0wa7alq": true,
+          "wuzin5ns": true,
+          "2hf0bajd": true,
+          "y3t4pq22": true
+        },
+        "2026-03-21": {
+          "rapdx21z": true,
+          "qdlxivn7": true,
+          "z26xvtc1": true,
+          "jtrkw5r4": false,
+          "c0wa7alq": false,
+          "wuzin5ns": true,
+          "2hf0bajd": false,
+          "y3t4pq22": false
+        },
+        "2026-03-22": {
+          "rapdx21z": false,
+          "qdlxivn7": true,
+          "z26xvtc1": true,
+          "jtrkw5r4": false,
+          "c0wa7alq": true,
+          "wuzin5ns": true,
+          "2hf0bajd": true,
+          "y3t4pq22": true
+        }
+      },
+      "scoreHistory": [],
+      "totalScore": 172,
+      "lifetimeScore": 172,
+      "streak": 0,
+      "lastCompleteDate": null,
+      "readingBook": {
+        "name": "七色花",
+        "author": "卡达耶夫",
+        "totalPages": 106,
+        "currentPage": 41
+      },
+      "readingHistory": [
+        {
+          "bookName": "阳光",
+          "author": "金波",
+          "totalPages": 115,
+          "completedDate": "2026-03-19"
+        },
+        {
+          "bookName": "吸尘器去钓鱼",
+          "author": "村上诗子",
+          "totalPages": 79,
+          "completedDate": "2026-01-19"
+        },
+        {
+          "bookName": "雨点儿（秋）",
+          "author": "金波",
+          "totalPages": 115,
+          "completedDate": "2026-01-20"
+        },
+        {
+          "bookName": "沙滩上的童话（夏）",
+          "author": "金波",
+          "totalPages": 115,
+          "completedDate": "2026-01-06"
+        }
+      ]
+    }
+  ],
+  "currentChildId": "4306eldp",
+  "lastModified": 1774186189884
+}

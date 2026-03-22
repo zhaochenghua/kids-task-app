@@ -1,0 +1,22 @@
+{
+  "name": "kids-task-app",
+  "version": "1.0.0",
+  "description": "儿童每日任务打卡积分助手 - 支持多端实时同步",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "kids",
+    "task",
+    "checkin",
+    "family"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^2.5.0"
+  }
+}

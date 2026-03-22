@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>🌟 每日任务打卡</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ===== 并列视图容器 ===== -->
+<div id="splitViewContainer" class="split-view-container" style="display:none">
+  <!-- 动态生成孩子面板 -->
+</div>
+
+<!-- ===== 主界面 ===== -->
+<div id="app">
+
+  <!-- 顶部状态栏 -->
+  <header class="top-bar">
+    <div class="date-display" id="dateDisplay"></div>
+    <div class="score-badge">
+      <span class="score-icon">⭐</span>
+      <span class="score-total" id="totalScore">0</span>
+      <span class="score-label">积分</span>
+    </div>
+    <div class="top-actions">
+      <button class="split-view-btn" id="splitViewBtn" title="并列显示">👥</button>
+      <button class="switch-child-btn" id="switchChild" title="切换孩子">👶</button>
+      <button class="settings-btn" id="openSettings" title="设置">⚙️</button>
+    </div>
+  </header>
+
+  <!-- 左右切换按钮 -->
+  <button class="nav-btn nav-prev" id="navPrev" title="上一个孩子">◀</button>
+  <button class="nav-btn nav-next" id="navNext" title="下一个孩子">▶</button>
+
+  <!-- 孩子名字 & 今日进度 -->
+  <section class="hero">
+    <div class="child-info-with-avatar">
+      <div class="child-avatar-display" id="childAvatarDisplay">
+        <span class="child-avatar-initial" id="childAvatarInitial">赵</span>
+        <img id="childAvatarImg" src="" alt="" style="display:none" />
+      </div>
+      <div class="child-name" id="childName">赵可馨</div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressFill"></div>
+      </div>
+      <div class="progress-text" id="progressText">今日完成 0 / 0 项任务</div>
+    </div>
+    <div class="streak-info" id="streakInfo">🔥 连续打卡 0 天</div>
+  </section>
+
+  <!-- 任务列表 -->
+  <section class="task-section">
+    <div class="section-title">📋 今日任务</div>
+    <div class="task-list" id="taskList">
+      <!-- 动态生成 -->
+    </div>
+    <div class="empty-hint" id="emptyHint" style="display:none">
+      还没有任务哦，点击右上角 ⚙️ 去添加吧！
+    </div>
+  </section>
+
+  <!-- 每日阅读 -->
+  <section class="reading-section" id="readingSection" style="display:none">
+
+    <div class="reading-container">
+      <div class="reading-stats-side" id="readingStats" style="display:none">
+        <!-- 动态生成累计阅读统计 -->
+      </div>
+      <button class="reading-card-btn" id="readingCardBtn">
+        <div class="reading-card-header">
+          <div class="reading-book-name" id="readingBookName"></div>
+          <div class="reading-book-pages" id="readingBookPages"></div>
+        </div>
+        <div class="reading-progress-bar" id="readingBtnProgress">
+          <div class="reading-progress-fill" id="readingProgressFill"></div>
+        </div>
+      </button>
+    </div>
+  </section>
+
+  <!-- 底部积分历史入口 -->
+  <footer class="bottom-bar">
+    <button class="history-btn" id="openHistory">🏆 积分记录</button>
+  </footer>
+
+</div>
+
+<!-- ===== 完成动画遮罩 ===== -->
+<div class="celebrate-overlay" id="celebrateOverlay">
+  <div class="celebrate-box">
+    <div class="celebrate-emoji" id="celebrateEmoji">🎉</div>
+    <div class="celebrate-text" id="celebrateText">太棒了！</div>
+    <div class="celebrate-sub" id="celebrateSub">+1 积分</div>
+  </div>
+</div>
+
+<!-- ===== 全部完成庆祝 ===== -->
+<div class="all-done-overlay" id="allDoneOverlay" style="display:none">
+  <div class="all-done-box">
+    <div class="fireworks">🎆🎇✨🎊🎉</div>
+    <div class="all-done-title">🌟 全部完成！🌟</div>
+    <div class="all-done-sub">今天的任务全部打卡成功！</div>
+    <div class="all-done-bonus">额外奖励 +<span id="bonusPoints">5</span> 积分！</div>
+    <button class="all-done-close" id="allDoneClose">好耶！</button>
+  </div>
+</div>
+
+<!-- ===== 设置面板 ===== -->
+<div class="modal-overlay" id="settingsModal" style="display:none">
+  <div class="modal-panel settings-panel">
+    <div class="modal-header">
+      <span>⚙️ 设置</span>
+      <button class="modal-close" id="closeSettings">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- 孩子名字 -->
+      <div class="setting-group">
+        <label class="setting-label">👦 孩子名字</label>
+        <div class="child-select-row">
+          <select class="setting-select" id="selectChild">
+            <option value="">-- 选择孩子 --</option>
+          </select>
+          <input type="text" class="setting-input" id="inputChildName" placeholder="输入孩子名字" maxlength="10" />
+        </div>
+      </div>
+
+      <!-- 在读书目 -->
+      <div class="setting-group">
+        <label class="setting-label">📚 在读书目</label>
+        <div class="reading-book-editor">
+          <input type="text" class="setting-input" id="readingBookNameInput" placeholder="书名" maxlength="50" />
+          <input type="text" class="setting-input" id="readingBookAuthorInput" placeholder="作者" maxlength="30" style="margin-top:10px" />
+          <input type="number" class="setting-input" id="readingBookTotalPagesInput" placeholder="总页数" min="1" max="9999" style="margin-top:10px" />
+          <input type="number" class="setting-input" id="readingBookCurrentPagesInput" placeholder="已读页数" min="0" max="9999" style="margin-top:10px" />
+          <div class="reading-book-actions" style="margin-top:12px;display:flex;gap:10px">
+            <button class="reading-save-btn" id="saveReadingBookBtn">💾 保存书目</button>
+            <button class="reading-clear-btn" id="clearReadingBookBtn" style="display:none">🗑️ 清除书目</button>
+          </div>
+          <div class="setting-hint">💡 登记当前正在阅读的书籍，点击阅读卡片可增加阅读进度</div>
+        </div>
+      </div>
+
+      <!-- 头像设置 -->
+      <div class="setting-group">
+        <label class="setting-label">🖼️ 自定义头像</label>
+        <div class="avatar-editor">
+          <div class="avatar-preview" id="avatarPreview">
+            <span class="avatar-placeholder" id="avatarPlaceholder">赵</span>
+            <img id="avatarImage" src="" alt="" style="display:none" />
+          </div>
+          <div class="avatar-actions">
+            <button class="avatar-upload-btn" id="uploadAvatarBtn">📷 上传照片</button>
+            <button class="avatar-remove-btn" id="removeAvatarBtn" style="display:none">🗑️ 删除头像</button>
+          </div>
+          <input type="file" id="avatarFileInput" accept="image/*" style="display:none" />
+          <div class="setting-hint">💡 支持 JPG、PNG 格式，建议使用正方形图片</div>
+        </div>
+      </div>
+
+      <!-- 全部完成奖励 -->
+      <div class="setting-group">
+        <label class="setting-label">🎁 全部完成额外奖励积分</label>
+        <input type="number" class="setting-input" id="inputBonus" min="0" max="100" value="5" />
+      </div>
+
+      <!-- 任务管理 -->
+      <div class="setting-group">
+        <label class="setting-label">📋 任务管理</label>
+        <div class="task-editor-list" id="taskEditorList">
+          <!-- 动态生成 -->
+        </div>
+        <button class="add-task-btn" id="addTaskBtn">＋ 添加新任务</button>
+      </div>
+
+      <!-- 重置总积分 -->
+      <div class="setting-group danger-zone">
+        <label class="setting-label">⚠️ 重置总积分</label>
+        <button class="danger-btn" id="resetLifetimeScore">🔄 重置总积分</button>
+        <div class="setting-hint">总积分累计所有周期的积分，点击后将清零</div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="save-btn" id="saveSettings">💾 保存设置</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 积分历史面板 ===== -->
+<div class="modal-overlay" id="historyModal" style="display:none">
+  <div class="modal-panel history-panel">
+    <div class="modal-header">
+      <span>🏆 积分记录</span>
+      <button class="modal-close" id="closeHistory">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="history-total">
+        总积分：<span id="historyTotalScore">0</span> ⭐
+      </div>
+      
+      <!-- 阅读历史区域 -->
+      <div class="reading-history-section" id="readingHistorySection" style="display:none">
+        <div class="section-title-small">📚 阅读成就</div>
+        <div class="reading-history-list" id="readingHistoryList">
+          <!-- 动态生成 -->
+        </div>
+      </div>
+      
+      <div class="history-list" id="historyList">
+        <!-- 动态生成 -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 孩子切换面板 ===== -->
+<div class="modal-overlay" id="childSwitchModal" style="display:none">
+  <div class="modal-panel child-switch-panel">
+    <div class="modal-header">
+      <span>👶 切换孩子</span>
+      <button class="modal-close" id="closeChildSwitch">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="child-list-hint">💡 长按孩子可删除</div>
+      <div class="child-list" id="childList">
+        <!-- 动态生成 -->
+      </div>
+      <button class="add-child-btn" id="addChildBtn">＋ 添加新孩子</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 并列显示选择面板 ===== -->
+<div class="modal-overlay" id="splitSelectModal" style="display:none">
+  <div class="modal-panel split-select-panel">
+    <div class="modal-header">
+      <span>👥 选择要并列显示的孩子</span>
+      <button class="modal-close" id="closeSplitSelect">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="split-select-hint">💡 请选择 2 个孩子进行并列显示</div>
+      <div class="split-select-list" id="splitSelectList">
+        <!-- 动态生成 -->
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="save-btn" id="confirmSplitSelect">✓ 确认显示</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 确认对话框 ===== -->
+<div class="modal-overlay" id="confirmModal" style="display:none">
+  <div class="modal-panel confirm-panel">
+    <div class="confirm-text" id="confirmText">确定吗？</div>
+    <div class="confirm-buttons">
+      <button class="confirm-yes" id="confirmYes">确定</button>
+      <button class="confirm-no" id="confirmNo">取消</button>
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

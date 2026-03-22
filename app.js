@@ -436,6 +436,10 @@ const els = {
   saveReadingBookBtn:         $('saveReadingBookBtn'),
   clearReadingBookBtn:        $('clearReadingBookBtn'),
 
+  // 孩子顺序调整
+  moveChildUp:                $('moveChildUp'),
+  moveChildDown:              $('moveChildDown'),
+
   // 历史
   openHistory:      $('openHistory'),
   historyModal:     $('historyModal'),
@@ -1128,6 +1132,8 @@ function openSettings() {
   renderChildSelect();
   // 加载当前孩子的数据
   loadChildDataToSettings(currentChild);
+  // 更新顺序按钮状态
+  updateOrderButtonsState();
   els.settingsModal.style.display = 'flex';
 }
 
@@ -1152,6 +1158,58 @@ function loadChildDataToSettings(child) {
   renderAvatarPreview(child);
   // 加载阅读书目
   loadReadingBookToSettings();
+}
+
+// 更新顺序按钮状态
+function updateOrderButtonsState() {
+  if (!els.selectChild || !els.moveChildUp || !els.moveChildDown) return;
+  
+  const selectedChildId = els.selectChild.value;
+  if (!selectedChildId) {
+    els.moveChildUp.disabled = true;
+    els.moveChildDown.disabled = true;
+    return;
+  }
+  
+  const index = appData.children.findIndex(c => c.id === selectedChildId);
+  els.moveChildUp.disabled = index <= 0;
+  els.moveChildDown.disabled = index >= appData.children.length - 1 || index === -1;
+}
+
+// 移动孩子顺序
+function moveChildOrder(direction) {
+  if (!els.selectChild) return;
+  
+  const selectedChildId = els.selectChild.value;
+  if (!selectedChildId) return;
+  
+  const index = appData.children.findIndex(c => c.id === selectedChildId);
+  if (index === -1) return;
+  
+  const newIndex = index + direction;
+  if (newIndex < 0 || newIndex >= appData.children.length) return;
+  
+  // 交换位置
+  const temp = appData.children[index];
+  appData.children[index] = appData.children[newIndex];
+  appData.children[newIndex] = temp;
+  
+  // 同步到服务器
+  syncToServer();
+  
+  // 重新渲染下拉菜单
+  renderChildSelect();
+  
+  // 保持选中状态
+  els.selectChild.value = selectedChildId;
+  
+  // 更新按钮状态
+  updateOrderButtonsState();
+  
+  // 如果孩子切换面板打开，也刷新它
+  if (els.childSwitchModal.style.display === 'flex') {
+    renderChildList();
+  }
 }
 
 // 加载阅读书目到设置面板
@@ -2179,8 +2237,24 @@ function bindEvents() {
           syncToServer();
           // 加载孩子的数据到设置面板（重新加载编辑中的任务）
           loadChildDataToSettings(selectedChild);
+          // 更新顺序按钮状态
+          updateOrderButtonsState();
         }
       }
+    });
+  }
+
+  // 孩子顺序调整按钮
+  if (els.moveChildUp) {
+    els.moveChildUp.addEventListener('click', () => {
+      playSound('click');
+      moveChildOrder(-1);
+    });
+  }
+  if (els.moveChildDown) {
+    els.moveChildDown.addEventListener('click', () => {
+      playSound('click');
+      moveChildOrder(1);
     });
   }
 
